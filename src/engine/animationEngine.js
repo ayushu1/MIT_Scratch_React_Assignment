@@ -1,29 +1,32 @@
 // animationEngine: runs blocks for a sprite using updateSprite/getSpriteState callbacks
 export async function runSpriteBlocks(sprite, updateSprite, getSpriteState, checkCollisionsCallback) {
-  // runs blocks in order (doesn't block others)
   const blocks = sprite.blocks || [];
 
   for (let i = 0; i < blocks.length; i++) {
     const b = blocks[i];
+
+    // SKIP nested blocks so they only run inside Repeat
+    if (b.parentId) continue;
+
     switch (b.type) {
       case "MOVE_STEPS":
-        await handleMoveSteps(sprite, b, updateSprite, getSpriteState, checkCollisionsCallback);
+        await handleMoveSteps(sprite, b, updateSprite, getSpriteState);
         break;
       case "TURN_RIGHT":
       case "TURN_LEFT":
-        await handleTurn(sprite, b, updateSprite);
+        await handleTurn(sprite, b, updateSprite, getSpriteState);
         break;
       case "GOTO_XY":
-        await handleGoto(sprite, b, updateSprite);
+        await handleGoto(sprite, b, updateSprite, getSpriteState);
         break;
       case "SAY_FOR_SECONDS":
-        await handleSay(sprite, b, updateSprite);
+        await handleSay(sprite, b, updateSprite, getSpriteState);
         break;
       case "THINK_FOR_SECONDS":
-        await handleThink(sprite, b, updateSprite);
+        await handleThink(sprite, b, updateSprite, getSpriteState);
         break;
       case "REPEAT":
-        await handleRepeat(sprite, b, updateSprite, getSpriteState, checkCollisionsCallback);
+        await handleRepeat(sprite, b, updateSprite, getSpriteState);
         break;
       default:
         break;
@@ -35,80 +38,98 @@ function wait(ms) {
   return new Promise((res) => setTimeout(res, ms));
 }
 
-async function handleMoveSteps(sprite, block, updateSprite, getSpriteState, checkCollisionsCallback) {
-  const steps = Number(block.params.value) || 10;
-  const SPEED = 5; // <--- SUPER IMPORTANT ADD THIS
+export async function handleMoveSteps(sprite, block, updateSprite, getSpriteState) {
+  const steps = Number(block.params.steps) || Number(block.params.value) || 0;
+  
+  const currentSprite = getSpriteState(sprite.id);
+  const angleRad = (currentSprite.angle * Math.PI) / 180;
 
-  for (let i = 0; i < steps; i++) {
-    const current = getSpriteState(sprite.id);
+  const dx = Math.cos(angleRad) * steps;
+  const dy = Math.sin(angleRad) * steps;
 
-    const rad = (current.angle || 0) * (Math.PI / 180);
-    const dx = Math.cos(rad) * SPEED;
-    const dy = Math.sin(rad) * SPEED;
 
-    updateSprite(sprite.id, { x: current.x + dx, y: current.y + dy });
+  updateSprite(sprite.id, {
+    x: currentSprite.x + dx,
+    y: currentSprite.y + dy,
+  });
 
-    if (checkCollisionsCallback) checkCollisionsCallback();
-
-    await wait(35);
-  }
+  await wait(150);
 }
 
-
-
-async function handleTurn(sprite, block, updateSprite) {
-  const deg = Number(block.params.value) || 15;
-  const newAngle = (sprite.angle || 0) + deg;
+async function handleTurn(sprite, block, updateSprite, getSpriteState) {
+  const deg = Number(block.params.value) || Number(block.params.degrees) || 15;
+  const currentSprite = getSpriteState(sprite.id);
+  
+  // Check if it's a left turn (should be negative)
+  const turnAmount = block.type === "TURN_LEFT" ? -deg : deg;
+  const newAngle = (currentSprite.angle || 0) + turnAmount;
+  
+  
   updateSprite(sprite.id, { angle: newAngle });
-  await wait(80);
+  await wait(200); // Increased wait time to see the rotation
 }
 
-async function handleGoto(sprite, block, updateSprite) {
+async function handleGoto(sprite, block, updateSprite, getSpriteState) {
   const x = Number(block.params.x) || 0;
   const y = Number(block.params.y) || 0;
   updateSprite(sprite.id, { x, y });
   await wait(120);
 }
 
-async function handleSay(sprite, block, updateSprite) {
+async function handleSay(sprite, block, updateSprite, getSpriteState) {
   const text = block.params.text || "";
   const seconds = Number(block.params.seconds) || 1;
+  
+  
   updateSprite(sprite.id, { bubble: text });
   await wait(seconds * 1000);
   updateSprite(sprite.id, { bubble: "" });
 }
 
-async function handleThink(sprite, block, updateSprite) {
+async function handleThink(sprite, block, updateSprite, getSpriteState) {
   const text = block.params.text || "";
   const seconds = Number(block.params.seconds) || 1;
+  
+  
   updateSprite(sprite.id, { bubble: "💭 " + text });
   await wait(seconds * 1000);
   updateSprite(sprite.id, { bubble: "" });
 }
 
-async function handleRepeat(sprite, block, updateSprite, getSpriteState, checkCollisionsCallback) {
+async function handleRepeat(sprite, block, updateSprite, getSpriteState) {
   const count = Number(block.params.count) || 1;
-  // we assume nested blocks are simply stored in sprite.blocks with parentId equal to this block.id
+
   for (let i = 0; i < count; i++) {
-    const nested = (sprite.blocks || []).filter((b) => b.parentId === block.id);
+
+    // Get fresh sprite state at the start of each iteration
+    let currentSprite = getSpriteState(sprite.id);
+    const nested = (currentSprite.blocks || []).filter(c => c.parentId === block.id);
+    
+
     for (const nb of nested) {
-      // reuse handlers
+      // Always get fresh state before executing each nested block
+      currentSprite = getSpriteState(sprite.id);
+
+
       switch (nb.type) {
         case "MOVE_STEPS":
-          await handleMoveSteps(sprite, nb, updateSprite, getSpriteState, checkCollisionsCallback);
+          await handleMoveSteps(currentSprite, nb, updateSprite, getSpriteState);
           break;
         case "TURN_RIGHT":
         case "TURN_LEFT":
-          await handleTurn(sprite, nb, updateSprite);
+          await handleTurn(currentSprite, nb, updateSprite, getSpriteState);
           break;
         case "GOTO_XY":
-          await handleGoto(sprite, nb, updateSprite);
+          await handleGoto(currentSprite, nb, updateSprite, getSpriteState);
           break;
         case "SAY_FOR_SECONDS":
-          await handleSay(sprite, nb, updateSprite);
+          await handleSay(currentSprite, nb, updateSprite, getSpriteState);
           break;
         case "THINK_FOR_SECONDS":
-          await handleThink(sprite, nb, updateSprite);
+          await handleThink(currentSprite, nb, updateSprite, getSpriteState);
+          break;
+        case "REPEAT":
+          await handleRepeat(currentSprite, nb, updateSprite, getSpriteState);
           break;
         default:
           break;

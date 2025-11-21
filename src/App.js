@@ -16,26 +16,6 @@ export default function App() {
       id: "sprite1",
       name: "Sprite 1",
       sprite: "cat",
-      x: 0,
-      y: 0,
-      angle: 0,
-      bubble: "",
-      blocks: [],
-    },
-    {
-      id: "sprite2",
-      name: "Sprite 2",
-      sprite: "cat",
-      x: 20,
-      y: 0,
-      angle: 0,
-      bubble: "",
-      blocks: [],
-    },
-    {
-      id: "sprite3",
-      name: "Sprite 3",
-      sprite: "cat",
       x: -20,
       y: 0,
       angle: 0,
@@ -46,9 +26,18 @@ export default function App() {
 
   const [selectedSpriteId, setSelectedSpriteId] = useState(sprites[0].id);
   const collisionCooldownRef = useRef(false);
+  
+  // ✅ Store current sprites in a ref so getSpriteState always reads fresh data
+  const spritesRef = useRef(sprites);
+  
+  // Update ref whenever sprites change
+  React.useEffect(() => {
+    spritesRef.current = sprites;
+  }, [sprites]);
 
   function getSpriteState(id) {
-    return sprites.find((s) => s.id === id) || { x: 0, y: 0, angle: 0 };
+    // ✅ Read from ref instead of stale closure
+    return spritesRef.current.find((s) => s.id === id) || { x: 0, y: 0, angle: 0 };
   }
 
   function updateSprite(id, updates) {
@@ -91,12 +80,14 @@ export default function App() {
 
   function addSprite() {
     const id = nanoid();
+
     setSprites((prev) => [
       ...prev,
       {
         id,
         name: `Sprite ${prev.length + 1}`,
-        x: 0,
+        sprite: "cat",
+        x: prev.length * 20, // space them horizontally
         y: 0,
         angle: 0,
         bubble: "",
@@ -104,6 +95,7 @@ export default function App() {
         color: "#7c3aed",
       },
     ]);
+
     setSelectedSpriteId(id);
   }
 

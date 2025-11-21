@@ -14,12 +14,12 @@ export const BLOCK_DEFINITIONS = {
     params: { value: 15 },
   },
 
-  TURN_LEFT: {
-    type: "TURN_LEFT",
-    label: "Turn __ degrees",
-    color: "bg-blue-500",
-    params: { value: -15 },
-  },
+  // TURN_LEFT: {
+  //   type: "TURN_LEFT",
+  //   label: "Turn __ degrees",
+  //   color: "bg-blue-500",
+  //   params: { value: -15 },
+  // },
 
   GOTO_XY: {
     type: "GOTO_XY",
