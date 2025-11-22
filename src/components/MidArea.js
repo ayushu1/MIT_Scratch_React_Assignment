@@ -4,10 +4,10 @@ import { nanoid } from "nanoid";
 import { DragItemTypes } from "../dnd/DragItemTypes";
 import { BLOCK_DEFINITIONS } from "../blocks/blockDefinitions";
 import RepeatDropZone from "./RepeatDropZone";
+
 export default function MidArea({ selectedSprite, sprites, setSprites }) {
   const [hoverRepeatId, setHoverRepeatId] = useState(null);
 
-  // Main drop target for whole script area
   const [{ isOver }, drop] = useDrop({
     accept: DragItemTypes.BLOCK,
     drop: (item, monitor) => {
@@ -37,7 +37,6 @@ export default function MidArea({ selectedSprite, sprites, setSprites }) {
     );
   }
 
-  // update a param for a block
   function updateBlockParam(blockId, key, value) {
     setSprites((prev) =>
       prev.map((sp) =>
@@ -55,7 +54,6 @@ export default function MidArea({ selectedSprite, sprites, setSprites }) {
     );
   }
 
-  // remove block and any children nested inside it
   function removeBlock(blockId) {
     setSprites((prev) =>
       prev.map((sp) =>
@@ -71,7 +69,6 @@ export default function MidArea({ selectedSprite, sprites, setSprites }) {
     );
   }
 
-  // render blocks with nesting (parentId === null for top-level)
   function renderBlocks(parentId = null, indent = 0) {
     const blocks = selectedSprite.blocks.filter((b) => b.parentId === parentId);
     return blocks.map((b) => {
@@ -97,12 +94,13 @@ export default function MidArea({ selectedSprite, sprites, setSprites }) {
                   {txt}
                   {paramKeys[i] !== undefined && (
                     <input
-                      value={b.params[paramKeys[i]]}
+                      key={`${b.id}-${paramKeys[i]}`}
+                      value={b.params[paramKeys[i]] ?? ''}
                       onChange={(e) =>
                         updateBlockParam(
                           b.id,
                           paramKeys[i],
-                          isNaN(e.target.value)
+                          isNaN(e.target.value) || e.target.value === ''
                             ? e.target.value
                             : Number(e.target.value)
                         )
@@ -123,7 +121,6 @@ export default function MidArea({ selectedSprite, sprites, setSprites }) {
             </div>
           </div>
 
-          {/* If this block is a REPEAT, render inner drop-zone and nested blocks */}
           {def.type === "REPEAT" && (
             <RepeatDropZone blockId={b.id}>
               {renderBlocks(b.id, indent + 1)}
@@ -147,7 +144,7 @@ export default function MidArea({ selectedSprite, sprites, setSprites }) {
       </div>
 
       {selectedSprite.blocks.length === 0 && (
-        <div className="text-gray-400">No blocks yet — drag from left.</div>
+        <div className="text-gray-400">No blocks yet drag from left.</div>
       )}
 
       <div className="space-y-2">{renderBlocks()}</div>

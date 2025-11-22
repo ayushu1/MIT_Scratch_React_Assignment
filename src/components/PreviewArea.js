@@ -25,10 +25,8 @@ export default function PreviewArea({ sprites }) {
               transition: "left 0.1s linear, top 0.1s linear, transform 0.1s linear",
             }}
           >
-            {/* Render Sprite SVG */}
-            {s.sprite === "cat" && <CatSprite />}
+          {s.sprite === "cat" && <CatSprite color={s.color || "#FFAB19"} />}
 
-            {/* Speech / Thought bubble */}
             {s.bubble && (
               <div
                 style={{

@@ -31,3 +31,4 @@ public/*.LICENSE.txt
 package-lock.json
 public/app.js
 public/app.css
+.vercel

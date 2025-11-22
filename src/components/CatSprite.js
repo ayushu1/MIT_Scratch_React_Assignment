@@ -1,6 +1,7 @@
 import React from "react";
 
-export default function CatSprite() {
+
+export default function CatSprite({ color = "#FFAB19" }) {
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -19,7 +20,7 @@ export default function CatSprite() {
                   d="M 21.9 73.8 C 19.5 73.3 16.6 72.5 14.2 70.3 C 8.7 65.4 7 57.3 3.2 59.4 C -0.7 61.5 -0.6 74.6 11.6 78.6 C 15.8 80 19.6 80 22.7 79.9 C 23.5 79.9 30.4 79.2 32.8 75.8 C 35.2 72.4 33.5 71.5 32.7 71.1 C 31.8 70.6 25.3 74.4 21.9 73.8 Z "
                   stroke="#001026"
                   strokeWidth="1.2"
-                  fill="#FFAB19"
+                  fill={color}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -35,7 +36,7 @@ export default function CatSprite() {
                 id="leg"
                 stroke="#001026"
                 strokeWidth="1.2"
-                fill="#FFAB19"
+                fill={color}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -44,7 +45,7 @@ export default function CatSprite() {
                 id="arm"
                 stroke="#001026"
                 strokeWidth="1.2"
-                fill="#FFAB19"
+                fill={color}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -54,7 +55,7 @@ export default function CatSprite() {
                   id="body"
                   stroke="#001026"
                   strokeWidth="1.2"
-                  fill="#FFAB19"
+                  fill={color}
                   strokeLinecap="round"
                   strokeLinejoin="round"
                 />
@@ -70,7 +71,7 @@ export default function CatSprite() {
                 id="arm"
                 stroke="#001026"
                 strokeWidth="1.2"
-                fill="#FFAB19"
+                fill={color}
                 strokeLinecap="round"
                 strokeLinejoin="round"
               />
@@ -79,7 +80,7 @@ export default function CatSprite() {
                   d="M 53.1 9 C 50.8 8.6 48.4 8.4 45.6 8.6 C 40.9 8.8 36.4 10.5 36.4 10.5 L 24.3 2.6 C 23.9 2.4 23.4 2.7 23.5 3.1 L 25.6 21 C 26.2 20.2 15 33.8 22.1 45.2 C 29.2 56.6 44.3 61.7 63.1 58 C 81.9 54.3 86.3 43.5 85.1 37.8 C 83.9 32.1 76.8 30 76.8 30 C 76.8 30 76.7 25.5 73.5 20 C 71.6 16.7 65.2 12 65.2 12 L 62.6 1.3 C 62.5 0.9 62 0.8 61.7 1 L 53.1 9 Z "
                   stroke="#001026"
                   strokeWidth="1.2"
-                  fill="#FFAB19"
+                  fill={color}
                 />
                 <path
                   d="M 76.5 30.4 C 76.5 30.4 83.4 32.2 84.6 37.9 C 85.8 43.6 81 53.9 62.4 57.5 C 38.2 62.5 26.7 48.1 33.4 37.5 C 40.1 26.8 51.6 35.9 60 35.3 C 67.2 34.8 68 28.5 76.5 30.4 Z "
