@@ -21,22 +21,20 @@ export default function App() {
       angle: 0,
       bubble: "",
       blocks: [],
+        color: "#FFAB19", 
     },
   ]);
 
   const [selectedSpriteId, setSelectedSpriteId] = useState(sprites[0].id);
   const collisionCooldownRef = useRef(false);
   
-  // ✅ Store current sprites in a ref so getSpriteState always reads fresh data
   const spritesRef = useRef(sprites);
   
-  // Update ref whenever sprites change
   React.useEffect(() => {
     spritesRef.current = sprites;
   }, [sprites]);
 
   function getSpriteState(id) {
-    // ✅ Read from ref instead of stale closure
     return spritesRef.current.find((s) => s.id === id) || { x: 0, y: 0, angle: 0 };
   }
 
@@ -64,7 +62,6 @@ export default function App() {
     if (collisionCooldownRef.current) return;
     collisionCooldownRef.current = true;
 
-    // swap blocks (hero feature)
     setSprites((prev) =>
       prev.map((s) => {
         if (s.id === A.id) return { ...s, blocks: B.blocks.slice() };
@@ -79,34 +76,37 @@ export default function App() {
   }
 
   function addSprite() {
-    const id = nanoid();
+  const id = nanoid();
+  
+  const hue = Math.floor(Math.random() * 360);
+  const saturation = 60 + Math.random() * 30; 
+  const lightness = 55 + Math.random() * 20; 
+  const randomColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 
-    setSprites((prev) => [
-      ...prev,
-      {
-        id,
-        name: `Sprite ${prev.length + 1}`,
-        sprite: "cat",
-        x: prev.length * 20, // space them horizontally
-        y: 0,
-        angle: 0,
-        bubble: "",
-        blocks: [],
-        color: "#7c3aed",
-      },
-    ]);
+  setSprites((prev) => [
+    ...prev,
+    {
+      id,
+      name: `Sprite ${prev.length + 1}`,
+      sprite: "cat",
+      x: prev.length * 20,
+      y: 0,
+      angle: 0,
+      bubble: "",
+      blocks: [],
+      color: randomColor,
+    },
+  ]);
 
-    setSelectedSpriteId(id);
-  }
+  setSelectedSpriteId(id);
+}
 
   async function runProgram() {
-    // run blocks for each sprite in parallel
     const runners = sprites.map((s) =>
       runSpriteBlocks(s, updateSprite, getSpriteState, () =>
         checkForCollisions(sprites)
       )
     );
-    // let them run - no await to keep parallel, but we await all to know when finished
     await Promise.all(runners.map((r) => r.catch(() => {})));
   }
 
@@ -140,7 +140,7 @@ export default function App() {
                   onClick={runProgram}
                   className="px-3 py-1 rounded bg-indigo-600 text-white text-sm"
                 >
-                  ▶ Play
+                   Play
                 </button>
               </div>
             </div>

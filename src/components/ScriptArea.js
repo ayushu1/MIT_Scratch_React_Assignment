@@ -4,7 +4,6 @@ import { DragItemTypes } from "../dnd/DragItemTypes";
 import { BLOCKS } from "../blocks/blockDefinitions";
 
 export default function ScriptArea({ scripts, onAddBlock, onUpdateInput }) {
-  // Drop handler
   const [{ isOver }, dropRef] = useDrop({
     accept: DragItemTypes.BLOCK,
     drop: (item) => onAddBlock(item.blockId),
@@ -39,12 +38,10 @@ export default function ScriptArea({ scripts, onAddBlock, onUpdateInput }) {
   );
 }
 
-/* ------------------- SCRIPT BLOCK RENDERER ------------------- */
 function ScriptBlock({ block, onUpdateInput, index }) {
   const def = BLOCKS.find((b) => b.id === block.id);
   if (!def) return null;
 
-  // Parse label parts like "Move __ steps"
   const parts = def.label.split("__");
 
   return (
@@ -69,11 +66,9 @@ function ScriptBlock({ block, onUpdateInput, index }) {
         </React.Fragment>
       ))}
 
-      {/* Nested blocks (Repeat) */}
       {def.hasNested && (
         <div className="ml-4 mt-2 p-2 bg-white rounded text-black">
           <div className="text-xs text-gray-600 mb-1">Repeat inner blocks</div>
-          {/* Future: inner block support */}
         </div>
       )}
     </div>

@@ -5,7 +5,6 @@ export async function runSpriteBlocks(sprite, updateSprite, getSpriteState, chec
   for (let i = 0; i < blocks.length; i++) {
     const b = blocks[i];
 
-    // SKIP nested blocks so they only run inside Repeat
     if (b.parentId) continue;
 
     switch (b.type) {
@@ -13,7 +12,6 @@ export async function runSpriteBlocks(sprite, updateSprite, getSpriteState, chec
         await handleMoveSteps(sprite, b, updateSprite, getSpriteState);
         break;
       case "TURN_RIGHT":
-      case "TURN_LEFT":
         await handleTurn(sprite, b, updateSprite, getSpriteState);
         break;
       case "GOTO_XY":
@@ -60,13 +58,12 @@ async function handleTurn(sprite, block, updateSprite, getSpriteState) {
   const deg = Number(block.params.value) || Number(block.params.degrees) || 15;
   const currentSprite = getSpriteState(sprite.id);
   
-  // Check if it's a left turn (should be negative)
-  const turnAmount = block.type === "TURN_LEFT" ? -deg : deg;
+  const turnAmount =  -deg;
   const newAngle = (currentSprite.angle || 0) + turnAmount;
   
   
   updateSprite(sprite.id, { angle: newAngle });
-  await wait(200); // Increased wait time to see the rotation
+  await wait(200);
 }
 
 async function handleGoto(sprite, block, updateSprite, getSpriteState) {
@@ -99,15 +96,13 @@ async function handleThink(sprite, block, updateSprite, getSpriteState) {
 async function handleRepeat(sprite, block, updateSprite, getSpriteState) {
   const count = Number(block.params.count) || 1;
 
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i <= count; i++) {
 
-    // Get fresh sprite state at the start of each iteration
     let currentSprite = getSpriteState(sprite.id);
     const nested = (currentSprite.blocks || []).filter(c => c.parentId === block.id);
     
 
     for (const nb of nested) {
-      // Always get fresh state before executing each nested block
       currentSprite = getSpriteState(sprite.id);
 
 

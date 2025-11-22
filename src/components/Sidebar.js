@@ -10,7 +10,6 @@ function DraggableBlock({ def }) {
     collect: (m) => ({ isDragging: !!m.isDragging() }),
   });
 
-  // render label, show first param preview
   const labelParts = def.label.split("__");
 
   return (
