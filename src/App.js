@@ -21,14 +21,12 @@ export default function App() {
       angle: 0,
       bubble: "",
       blocks: [],
-      color: "#FFAB19",
+        color: "#FFAB19", 
     },
   ]);
 
   const [selectedSpriteId, setSelectedSpriteId] = useState(sprites[0].id);
-  
-  // Track which sprite pairs have already collided
-  const collisionTrackerRef = useRef(new Set());
+  const collisionCooldownRef = useRef(false);
   
   const spritesRef = useRef(sprites);
   
@@ -51,34 +49,19 @@ export default function App() {
   function checkForCollisions(list) {
     for (let i = 0; i < list.length; i++) {
       for (let j = i + 1; j < list.length; j++) {
-        const A = list[i];
-        const B = list[j];
-        
-        // Create unique key for this collision pair
-        const collisionKey = `${A.id}-${B.id}`;
-        const reverseKey = `${B.id}-${A.id}`;
-        
-        const isColliding = checkCollision(A, B);
-        
-        if (isColliding) {
-          // Only handle collision if this pair hasn't collided before
-          if (!collisionTrackerRef.current.has(collisionKey) && 
-              !collisionTrackerRef.current.has(reverseKey)) {
-            collisionTrackerRef.current.add(collisionKey);
-            handleCollision(A, B);
-          }
-        } else {
-          // Reset collision state when sprites are no longer touching
-          collisionTrackerRef.current.delete(collisionKey);
-          collisionTrackerRef.current.delete(reverseKey);
+        const A = list[i],
+          B = list[j];
+        if (checkCollision(A, B)) {
+          handleCollision(A, B);
         }
       }
     }
   }
 
   function handleCollision(A, B) {
-    console.log(`Collision detected: ${A.name} <-> ${B.name}`);
-    
+    if (collisionCooldownRef.current) return;
+    collisionCooldownRef.current = true;
+
     setSprites((prev) =>
       prev.map((s) => {
         if (s.id === A.id) return { ...s, blocks: B.blocks.slice() };
@@ -86,38 +69,39 @@ export default function App() {
         return s;
       })
     );
+
+    setTimeout(() => {
+      collisionCooldownRef.current = false;
+    }, 1500);
   }
 
   function addSprite() {
-    const id = nanoid();
-    
-    const hue = Math.floor(Math.random() * 360);
-    const saturation = 60 + Math.random() * 30; 
-    const lightness = 55 + Math.random() * 20; 
-    const randomColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+  const id = nanoid();
+  
+  const hue = Math.floor(Math.random() * 360);
+  const saturation = 60 + Math.random() * 30; 
+  const lightness = 55 + Math.random() * 20; 
+  const randomColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 
-    setSprites((prev) => [
-      ...prev,
-      {
-        id,
-        name: `Sprite ${prev.length + 1}`,
-        sprite: "cat",
-        x: prev.length * 20,
-        y: 0,
-        angle: 0,
-        bubble: "",
-        blocks: [],
-        color: randomColor,
-      },
-    ]);
+  setSprites((prev) => [
+    ...prev,
+    {
+      id,
+      name: `Sprite ${prev.length + 1}`,
+      sprite: "cat",
+      x: prev.length * 20,
+      y: 0,
+      angle: 0,
+      bubble: "",
+      blocks: [],
+      color: randomColor,
+    },
+  ]);
 
-    setSelectedSpriteId(id);
-  }
+  setSelectedSpriteId(id);
+}
 
   async function runProgram() {
-    // Reset collision tracker when program starts
-    collisionTrackerRef.current.clear();
-    
     const runners = sprites.map((s) =>
       runSpriteBlocks(s, updateSprite, getSpriteState, () =>
         checkForCollisions(sprites)
@@ -156,7 +140,7 @@ export default function App() {
                   onClick={runProgram}
                   className="px-3 py-1 rounded bg-indigo-600 text-white text-sm"
                 >
-                  Play
+                   Play
                 </button>
               </div>
             </div>
