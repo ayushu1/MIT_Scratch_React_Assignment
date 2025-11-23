@@ -1,18 +1,7 @@
-/**
- * SpritePreview Component
- * 
- * Renders a single sprite in the preview area with position, rotation, and speech bubbles.
- * Memoized to prevent unnecessary re-renders when other sprites change.
- */
-
 import React from "react";
 import CatSprite from "./CatSprite";
 import { STAGE } from "../constants";
 
-/**
- * @param {Object} props
- * @param {Object} props.sprite - Sprite object with x, y, angle, bubble, sprite, color
- */
 const SpritePreview = React.memo(({ sprite }) => {
   const left = STAGE.CENTER_X + sprite.x * STAGE.SCALE;
   const top = STAGE.CENTER_Y - sprite.y * STAGE.SCALE;

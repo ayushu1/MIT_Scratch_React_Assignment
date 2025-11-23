@@ -1,22 +1,6 @@
-/**
- * Block Component
- * 
- * Renders a single block with editable parameters and delete functionality.
- * Used in the script area to display and interact with blocks.
- */
-
 import React from "react";
 import { BLOCK_DEFINITIONS } from "../blocks/blockDefinitions";
 
-/**
- * @param {Object} props
- * @param {Object} props.block - Block object with id, type, params, parentId
- * @param {Function} props.onUpdateParam - Callback to update block parameter
- * @param {Function} props.onRemove - Callback to remove block
- * @param {number} props.indent - Indentation level for nested blocks
- * @param {Function} props.onMouseEnter - Optional mouse enter handler
- * @param {Function} props.onMouseLeave - Optional mouse leave handler
- */
 export default function Block({
   block,
   onUpdateParam,

@@ -1,10 +1,3 @@
-/**
- * MidArea Component
- * 
- * Main script editing area where users can drop and arrange blocks.
- * Handles drag-and-drop of blocks and displays the script for the selected sprite.
- */
-
 import React from "react";
 import { useDrop } from "react-dnd";
 import { nanoid } from "nanoid";
@@ -19,22 +12,14 @@ export default function MidArea() {
   const [{ isOver }, drop] = useDrop({
     accept: DragItemTypes.BLOCK,
     drop: (item, monitor) => {
-      // Check if the drop was already handled by a nested drop zone (like RepeatDropZone)
       if (monitor.didDrop()) {
-        return; // Don't handle the drop if it was already handled by a child drop zone
+        return;
       }
-
-      // Only handle drops that weren't handled by nested drop zones
       handleDrop(item, null);
     },
     collect: (m) => ({ isOver: !!m.isOver() }),
   });
 
-  /**
-   * Handles dropping a block from the sidebar
-   * @param {Object} item - Drag item with blockType
-   * @param {string|null} parentId - Parent block ID if dropping into REPEAT
-   */
   function handleDrop(item, parentId = null) {
     const def = BLOCK_DEFINITIONS[item.blockType];
     if (!def) return;

@@ -1,23 +1,8 @@
-/**
- * BlockList Component
- * 
- * Renders a list of blocks, handling nested blocks (e.g., REPEAT blocks).
- * Recursively renders child blocks with proper indentation.
- */
-
 import React, { useState } from "react";
 import Block from "./Block";
 import RepeatDropZone from "./RepeatDropZone";
 import { BLOCK_DEFINITIONS } from "../blocks/blockDefinitions";
 
-/**
- * @param {Object} props
- * @param {Array<Object>} props.blocks - Array of block objects
- * @param {Function} props.onUpdateParam - Callback to update block parameter
- * @param {Function} props.onRemove - Callback to remove block
- * @param {string|null} props.parentId - Parent block ID for filtering nested blocks
- * @param {number} props.indent - Indentation level
- */
 export default function BlockList({
   blocks,
   onUpdateParam,

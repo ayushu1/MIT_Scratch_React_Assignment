@@ -1,10 +1,3 @@
-/**
- * RepeatDropZone Component
- * 
- * Drop zone for nested blocks inside REPEAT blocks.
- * Handles dropping blocks that should be executed within a repeat loop.
- */
-
 import React from "react";
 import { useDrop } from "react-dnd";
 import { nanoid } from "nanoid";
@@ -12,11 +5,6 @@ import { DragItemTypes } from "../dnd/DragItemTypes";
 import { BLOCK_DEFINITIONS } from "../blocks/blockDefinitions";
 import { useAppContext } from "../context/AppContext";
 
-/**
- * @param {Object} props
- * @param {string} props.blockId - ID of the parent REPEAT block
- * @param {React.ReactNode} props.children - Child blocks to render
- */
 export default function RepeatDropZone({ blockId, children }) {
   const { addBlock } = useAppContext();
 
@@ -34,8 +22,6 @@ export default function RepeatDropZone({ blockId, children }) {
       };
 
       addBlock(newBlock);
-      
-      // Return a result to indicate this drop was handled
       return { handled: true, parentId: blockId };
     },
     collect: (m) => ({ isOver: m.isOver() }),

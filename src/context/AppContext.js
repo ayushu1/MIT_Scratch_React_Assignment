@@ -1,31 +1,8 @@
-/**
- * App Context
- * 
- * Centralized state management for the Scratch-style playground.
- * Manages sprites, selected sprite, and provides actions for state updates.
- */
-
 import React, { createContext, useContext, useReducer, useRef, useCallback } from "react";
 import { nanoid } from "nanoid";
 import { DEFAULT_SPRITE, COLLISION } from "../constants";
 import { checkAllCollisions } from "../engine/collisionEngine";
 
-/**
- * @typedef {Object} Sprite
- * @property {string} id - Unique sprite identifier
- * @property {string} name - Display name
- * @property {string} sprite - Sprite type (e.g., "cat")
- * @property {number} x - X coordinate
- * @property {number} y - Y coordinate
- * @property {number} angle - Rotation angle in degrees
- * @property {string} bubble - Speech/thought bubble text
- * @property {Array<Object>} blocks - Array of block definitions
- * @property {string} color - Sprite color
- */
-
-/**
- * Action types for reducer
- */
 const ActionTypes = {
   ADD_SPRITE: "ADD_SPRITE",
   UPDATE_SPRITE: "UPDATE_SPRITE",
@@ -37,15 +14,10 @@ const ActionTypes = {
   SET_SPRITES: "SET_SPRITES",
 };
 
-/**
- * Reducer function for sprite state management
- * @param {Object} state - Current state
- * @param {Object} action - Action object with type and payload
- * @returns {Object} New state
- */
 function spriteReducer(state, action) {
   switch (action.type) {
     case ActionTypes.ADD_SPRITE: {
+      // Generate random color for new sprite
       const hue = Math.floor(Math.random() * 360);
       const saturation = 60 + Math.random() * 30;
       const lightness = 55 + Math.random() * 20;
@@ -159,9 +131,6 @@ function spriteReducer(state, action) {
   }
 }
 
-/**
- * Initial state
- */
 const initialState = {
   sprites: [
     {
@@ -173,25 +142,12 @@ const initialState = {
   selectedSpriteId: "sprite1",
 };
 
-/**
- * App Context
- */
 const AppContext = createContext(null);
 
-/**
- * App Provider Component
- * @param {Object} props - Component props
- * @param {React.ReactNode} props.children - Child components
- */
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(spriteReducer, initialState);
   const collisionCooldownRef = useRef(false);
 
-  /**
-   * Get current sprite state by ID
-   * @param {string} spriteId - Sprite ID
-   * @returns {Sprite|Object} Sprite object or empty object if not found
-   */
   const getSpriteState = useCallback(
     (spriteId) => {
       return state.sprites.find((s) => s.id === spriteId) || {};
@@ -199,41 +155,13 @@ export function AppProvider({ children }) {
     [state.sprites]
   );
 
-  /**
-   * Check for collisions and handle them
-   * @param {Array<Sprite>} spritesToCheck - Array of sprites to check
-   */
-  const checkForCollisions = useCallback((spritesToCheck) => {
-    if (collisionCooldownRef.current) return;
-
-    const collisions = checkAllCollisions(spritesToCheck);
-    if (collisions.length > 0) {
-      const { spriteA, spriteB } = collisions[0];
-      handleCollision(spriteA, spriteB);
-    }
-  }, []);
-
-  /**
-   * Update sprite state
-   * @param {string} spriteId - Sprite ID
-   * @param {Object} updates - Partial sprite updates
-   */
   const updateSprite = useCallback(
     (spriteId, updates) => {
       dispatch({ type: ActionTypes.UPDATE_SPRITE, payload: { spriteId, updates } });
-
-      // Check for collisions after update - use current state
-      // Note: This will check with the previous state, collision check in App.js uses ref
-      // which is more accurate for animation engine
     },
     []
   );
 
-  /**
-   * Handle collision between two sprites (swap their blocks)
-   * @param {Sprite} spriteA - First sprite
-   * @param {Sprite} spriteB - Second sprite
-   */
   const handleCollision = useCallback((spriteA, spriteB) => {
     if (collisionCooldownRef.current) return;
 
@@ -248,9 +176,6 @@ export function AppProvider({ children }) {
     }, COLLISION.COOLDOWN_MS);
   }, []);
 
-  /**
-   * Add a new sprite
-   */
   const addSprite = useCallback(() => {
     const id = nanoid();
     dispatch({
@@ -259,10 +184,6 @@ export function AppProvider({ children }) {
     });
   }, [state.sprites.length]);
 
-  /**
-   * Add a block to the selected sprite
-   * @param {Object} block - Block to add
-   */
   const addBlock = useCallback(
     (block) => {
       dispatch({
@@ -273,12 +194,6 @@ export function AppProvider({ children }) {
     [state.selectedSpriteId]
   );
 
-  /**
-   * Update a block parameter
-   * @param {string} blockId - Block ID
-   * @param {string} key - Parameter key
-   * @param {any} value - Parameter value
-   */
   const updateBlockParam = useCallback(
     (blockId, key, value) => {
       dispatch({
@@ -294,10 +209,6 @@ export function AppProvider({ children }) {
     [state.selectedSpriteId]
   );
 
-  /**
-   * Remove a block
-   * @param {string} blockId - Block ID to remove
-   */
   const removeBlock = useCallback(
     (blockId) => {
       dispatch({
@@ -308,21 +219,14 @@ export function AppProvider({ children }) {
     [state.selectedSpriteId]
   );
 
-  /**
-   * Set selected sprite ID
-   * @param {string} spriteId - Sprite ID to select
-   */
   const setSelectedSpriteId = useCallback((spriteId) => {
     dispatch({ type: ActionTypes.SET_SELECTED_SPRITE, payload: spriteId });
   }, []);
 
   const value = {
-    // State
     sprites: state.sprites,
     selectedSpriteId: state.selectedSpriteId,
     selectedSprite: state.sprites.find((s) => s.id === state.selectedSpriteId) || state.sprites[0],
-
-    // Actions
     addSprite,
     updateSprite,
     getSpriteState,
@@ -335,11 +239,6 @@ export function AppProvider({ children }) {
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
 
-/**
- * Hook to use App Context
- * @returns {Object} Context value with state and actions
- * @throws {Error} If used outside AppProvider
- */
 export function useAppContext() {
   const context = useContext(AppContext);
   if (!context) {

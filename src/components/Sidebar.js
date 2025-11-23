@@ -1,22 +1,8 @@
-/**
- * Sidebar Component
- * 
- * Displays draggable blocks organized by category (Motion, Control, Looks).
- * Users can drag blocks from here into the script area.
- */
-
 import React, { useMemo } from "react";
 import { useDrag } from "react-dnd";
 import { BLOCK_DEFINITIONS } from "../blocks/blockDefinitions";
 import { DragItemTypes } from "../dnd/DragItemTypes";
 
-/**
- * DraggableBlock Component
- * 
- * Individual block that can be dragged into the script area.
- * @param {Object} props
- * @param {Object} props.def - Block definition with type, label, color, params
- */
 const DraggableBlock = React.memo(({ def }) => {
   const [{ isDragging }, dragRef] = useDrag({
     type: DragItemTypes.BLOCK,
@@ -50,13 +36,7 @@ const DraggableBlock = React.memo(({ def }) => {
 
 DraggableBlock.displayName = "DraggableBlock";
 
-/**
- * Sidebar Component
- * 
- * Main sidebar that displays blocks organized by category.
- */
 export default function Sidebar() {
-  // Memoize block categorization to avoid recalculating on every render
   const { motion, control, looks } = useMemo(() => {
     const defs = Object.values(BLOCK_DEFINITIONS);
     return {
