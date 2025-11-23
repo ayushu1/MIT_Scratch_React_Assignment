@@ -1,9 +1,23 @@
-import React from "react";
+/**
+ * Sidebar Component
+ * 
+ * Displays draggable blocks organized by category (Motion, Control, Looks).
+ * Users can drag blocks from here into the script area.
+ */
+
+import React, { useMemo } from "react";
 import { useDrag } from "react-dnd";
 import { BLOCK_DEFINITIONS } from "../blocks/blockDefinitions";
 import { DragItemTypes } from "../dnd/DragItemTypes";
 
-function DraggableBlock({ def }) {
+/**
+ * DraggableBlock Component
+ * 
+ * Individual block that can be dragged into the script area.
+ * @param {Object} props
+ * @param {Object} props.def - Block definition with type, label, color, params
+ */
+const DraggableBlock = React.memo(({ def }) => {
   const [{ isDragging }, dragRef] = useDrag({
     type: DragItemTypes.BLOCK,
     item: { blockType: def.type },
@@ -11,6 +25,8 @@ function DraggableBlock({ def }) {
   });
 
   const labelParts = def.label.split("__");
+  const firstParamKey = Object.keys(def.params || {})[0];
+  const firstParamValue = firstParamKey ? def.params[firstParamKey] : null;
 
   return (
     <div
@@ -21,22 +37,34 @@ function DraggableBlock({ def }) {
       {labelParts.map((p, i) => (
         <span key={i}>
           {p}
-          {i === 0 && Object.keys(def.params)[0] && (
+          {i === 0 && firstParamValue && (
             <span className="mx-1 px-1 bg-white text-black rounded">
-              {Object.values(def.params)[0]}
+              {firstParamValue}
             </span>
           )}
         </span>
       ))}
     </div>
   );
-}
+});
 
+DraggableBlock.displayName = "DraggableBlock";
+
+/**
+ * Sidebar Component
+ * 
+ * Main sidebar that displays blocks organized by category.
+ */
 export default function Sidebar() {
-  const defs = Object.values(BLOCK_DEFINITIONS);
-  const motion = defs.filter((d) => d.color.includes("blue"));
-  const control = defs.filter((d) => d.color.includes("yellow"));
-  const looks = defs.filter((d) => d.color.includes("purple"));
+  // Memoize block categorization to avoid recalculating on every render
+  const { motion, control, looks } = useMemo(() => {
+    const defs = Object.values(BLOCK_DEFINITIONS);
+    return {
+      motion: defs.filter((d) => d.color.includes("blue")),
+      control: defs.filter((d) => d.color.includes("yellow")),
+      looks: defs.filter((d) => d.color.includes("purple")),
+    };
+  }, []);
 
   return (
     <div className="w-60 flex-none h-full overflow-y-auto p-3 border-r border-gray-200">

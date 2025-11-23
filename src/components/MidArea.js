@@ -1,22 +1,40 @@
-import React, { useState } from "react";
+/**
+ * MidArea Component
+ * 
+ * Main script editing area where users can drop and arrange blocks.
+ * Handles drag-and-drop of blocks and displays the script for the selected sprite.
+ */
+
+import React from "react";
 import { useDrop } from "react-dnd";
 import { nanoid } from "nanoid";
 import { DragItemTypes } from "../dnd/DragItemTypes";
 import { BLOCK_DEFINITIONS } from "../blocks/blockDefinitions";
-import RepeatDropZone from "./RepeatDropZone";
+import BlockList from "./BlockList";
+import { useAppContext } from "../context/AppContext";
 
-export default function MidArea({ selectedSprite, sprites, setSprites }) {
-  const [hoverRepeatId, setHoverRepeatId] = useState(null);
+export default function MidArea() {
+  const { selectedSprite, addBlock, updateBlockParam, removeBlock } = useAppContext();
 
   const [{ isOver }, drop] = useDrop({
     accept: DragItemTypes.BLOCK,
     drop: (item, monitor) => {
-      const data = monitor.getDropResult() || {};
-      handleDrop(item, data.parentId);
+      // Check if the drop was already handled by a nested drop zone (like RepeatDropZone)
+      if (monitor.didDrop()) {
+        return; // Don't handle the drop if it was already handled by a child drop zone
+      }
+
+      // Only handle drops that weren't handled by nested drop zones
+      handleDrop(item, null);
     },
     collect: (m) => ({ isOver: !!m.isOver() }),
   });
 
+  /**
+   * Handles dropping a block from the sidebar
+   * @param {Object} item - Drag item with blockType
+   * @param {string|null} parentId - Parent block ID if dropping into REPEAT
+   */
   function handleDrop(item, parentId = null) {
     const def = BLOCK_DEFINITIONS[item.blockType];
     if (!def) return;
@@ -28,107 +46,7 @@ export default function MidArea({ selectedSprite, sprites, setSprites }) {
       params: { ...(def.params || {}) },
     };
 
-    setSprites((prev) =>
-      prev.map((sp) =>
-        sp.id === selectedSprite.id
-          ? { ...sp, blocks: [...sp.blocks, newBlock] }
-          : sp
-      )
-    );
-  }
-
-  function updateBlockParam(blockId, key, value) {
-    setSprites((prev) =>
-      prev.map((sp) =>
-        sp.id === selectedSprite.id
-          ? {
-              ...sp,
-              blocks: sp.blocks.map((b) =>
-                b.id === blockId
-                  ? { ...b, params: { ...b.params, [key]: value } }
-                  : b
-              ),
-            }
-          : sp
-      )
-    );
-  }
-
-  function removeBlock(blockId) {
-    setSprites((prev) =>
-      prev.map((sp) =>
-        sp.id === selectedSprite.id
-          ? {
-              ...sp,
-              blocks: sp.blocks.filter(
-                (b) => b.id !== blockId && b.parentId !== blockId
-              ),
-            }
-          : sp
-      )
-    );
-  }
-
-  function renderBlocks(parentId = null, indent = 0) {
-    const blocks = selectedSprite.blocks.filter((b) => b.parentId === parentId);
-    return blocks.map((b) => {
-      const def = BLOCK_DEFINITIONS[b.type] || { label: b.type, params: {} };
-      const parts = def.label.split("__");
-      const paramKeys = Object.keys(b.params || {});
-
-      return (
-        <div key={b.id} style={{ marginLeft: indent * 18 }} className="mb-2">
-          <div
-            className={`${
-              def.color || "bg-gray-400"
-            } text-white p-2 rounded flex justify-between items-center`}
-            onMouseEnter={() => def.type === "REPEAT" && setHoverRepeatId(b.id)}
-            onMouseLeave={() =>
-              def.type === "REPEAT" &&
-              setHoverRepeatId((cur) => (cur === b.id ? null : cur))
-            }
-          >
-            <div>
-              {parts.map((txt, i) => (
-                <span key={i} className="mr-1">
-                  {txt}
-                  {paramKeys[i] !== undefined && (
-                    <input
-                      key={`${b.id}-${paramKeys[i]}`}
-                      value={b.params[paramKeys[i]] ?? ''}
-                      onChange={(e) =>
-                        updateBlockParam(
-                          b.id,
-                          paramKeys[i],
-                          isNaN(e.target.value) || e.target.value === ''
-                            ? e.target.value
-                            : Number(e.target.value)
-                        )
-                      }
-                      className="ml-2 px-1 text-black rounded w-20"
-                    />
-                  )}
-                </span>
-              ))}
-            </div>
-            <div>
-              <button
-                onClick={() => removeBlock(b.id)}
-                className="text-xs bg-white text-red-600 px-2 py-0.5 rounded"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-
-          {def.type === "REPEAT" && (
-            <RepeatDropZone blockId={b.id}>
-              {renderBlocks(b.id, indent + 1)}
-            </RepeatDropZone>
-          )}
-        </div>
-      );
-    });
+    addBlock(newBlock);
   }
 
   return (
@@ -147,7 +65,11 @@ export default function MidArea({ selectedSprite, sprites, setSprites }) {
         <div className="text-gray-400">No blocks yet drag from left.</div>
       )}
 
-      <div className="space-y-2">{renderBlocks()}</div>
+      <BlockList
+        blocks={selectedSprite.blocks}
+        onUpdateParam={updateBlockParam}
+        onRemove={removeBlock}
+      />
     </div>
   );
 }
