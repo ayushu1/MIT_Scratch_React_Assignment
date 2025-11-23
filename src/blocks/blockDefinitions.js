@@ -1,4 +1,16 @@
-// Single canonical block definitions used by Sidebar, MidArea and engine
+/**
+ * Block Definitions
+ * 
+ * Single canonical source of truth for all block types.
+ * Used by Sidebar (for display), MidArea (for editing), and animation engine (for execution).
+ * 
+ * Each block definition contains:
+ * - type: Unique identifier for the block
+ * - label: Display text with "__" placeholders for parameters
+ * - color: Tailwind CSS color class for visual categorization
+ * - params: Default parameter values
+ */
+
 export const BLOCK_DEFINITIONS = {
   MOVE_STEPS: {
     type: "MOVE_STEPS",
