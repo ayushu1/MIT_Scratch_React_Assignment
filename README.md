@@ -4,6 +4,8 @@ A small, educational Scratch-like starter built with React and Webpack. It demon
 ## Demo
 🚀 **[Live Demo on Vercel](https://scratch-starter-project-phi.vercel.app/)**
 
+🎥 **[Watch Demo Video](https://drive.google.com/file/d/1K0f2bqX2rieLYcI7TV6JWBJUAweVWcIb/view?usp=drive_link)**
+
 Or open the app locally (instructions below) and try dragging blocks into the script area, add sprites, and use the preview area to see behaviors.
 
 ## Features
