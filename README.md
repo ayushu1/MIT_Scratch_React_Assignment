@@ -59,11 +59,6 @@ This creates an optimized bundle via `webpack.prod.js`.
 - Sprite visuals are in `src/components/CatSprite.js` and images are under `public/`.
 - If you add new assets into `public/`, they will be copied as-is by the dev server.
 
-Edge-cases & tips
-
-- Large numbers of sprites or very frequent animation updates may become CPU-heavy in the browser — consider requestAnimationFrame throttling or offloading heavy calculations.
-- If you change webpack configs, restart the dev server to pick up changes.
-
 ## NPM scripts
 
 - `npm start` — start dev server (webpack-dev-server + hot reload).
